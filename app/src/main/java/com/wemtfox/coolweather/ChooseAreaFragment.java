@@ -1,6 +1,7 @@
 package com.wemtfox.coolweather;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -77,6 +78,12 @@ public class ChooseAreaFragment extends Fragment {
                 } else if (currentLevel == LEVEL_CITY) {
                     selectedCity = cityList.get(position);
                     queryCounties();
+                } else if (currentLevel == LEVEL_COUNTY) {
+                    String weatherId = countyList.get(position).getWeatherId();
+                    Intent intent = new Intent(getActivity(),WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
@@ -148,11 +155,11 @@ public class ChooseAreaFragment extends Fragment {
             adapter.notifyDataSetChanged();
             listView.setSelection(0);
             currentLevel = LEVEL_COUNTY;
-        }else {
+        } else {
             int provinceCode = selectedProvince.getProvinceCode();
             int cityCode = selectedCity.getCityCode();
-            String address = "http://guolin.tech/api/china/"+provinceCode+"/"+cityCode;
-            queryFromServer(address,"county");
+            String address = "http://guolin.tech/api/china/" + provinceCode + "/" + cityCode;
+            queryFromServer(address, "county");
         }
     }
 
@@ -167,7 +174,7 @@ public class ChooseAreaFragment extends Fragment {
                     @Override
                     public void run() {
                         closeProgressDialog();
-                        Toast.makeText(getContext(),"加载失败",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "加载失败", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -176,23 +183,23 @@ public class ChooseAreaFragment extends Fragment {
             public void onResponse(Call call, Response response) throws IOException {
                 String responeseText = response.body().string();
                 boolean result = false;
-                if ("province".equals(type)){
-                    result= Utility.handleProvinceResponse(responeseText);
-                }else if ("city".equals(type)){
-                    result=Utility.handleCityResponse(responeseText,selectedProvince.getId());
-                }else if("county".equals(type)){
-                    result=Utility.handleCountyResponse(responeseText,selectedCity.getId());
+                if ("province".equals(type)) {
+                    result = Utility.handleProvinceResponse(responeseText);
+                } else if ("city".equals(type)) {
+                    result = Utility.handleCityResponse(responeseText, selectedProvince.getId());
+                } else if ("county".equals(type)) {
+                    result = Utility.handleCountyResponse(responeseText, selectedCity.getId());
                 }
-                if (result){
+                if (result) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             closeProgressDialog();
-                            if ("province".equals(type)){
+                            if ("province".equals(type)) {
                                 queryProvince();
-                            }else if ("city".equals(type)){
+                            } else if ("city".equals(type)) {
                                 queryCities();
-                            }else if ("county".equals(type)){
+                            } else if ("county".equals(type)) {
                                 queryCounties();
                             }
                         }
